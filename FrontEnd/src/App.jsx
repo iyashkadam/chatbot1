@@ -18,7 +18,7 @@ const App = () => {
         <BrowserRouter>
           <Navbar />
           <Routes>
-            <Route path="/" element={<Index />} /> {/* Public Index page */}
+            <Route path="/" element={<Index />} />
             <Route path="/home" element={isAuth ? <Home /> : <Login />} />
             <Route path="/login" element={isAuth ? <Home /> : <Login />} />
             <Route path="/verify" element={isAuth ? <Home /> : <Verify />} />

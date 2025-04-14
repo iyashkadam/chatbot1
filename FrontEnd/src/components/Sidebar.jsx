@@ -6,11 +6,10 @@ import { UserData } from "../context/UserContext";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const { chats, createChat, createLod, setSelected, deleteChat } = ChatData();
-
   const { logoutHandler } = UserData();
 
   const deleteChatHandler = (id) => {
-    if (confirm("are you sure you want to delete this chat")) {
+    if (confirm("Are you sure you want to delete this chat?")) {
       deleteChat(id);
     }
   };
@@ -19,61 +18,66 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     setSelected(id);
     toggleSidebar();
   };
+
   return (
     <div
-      className={`fixed inset-0 bg-gray-800 p-4 transition-transform transform md:relative md:translate-x-0 md:w-1/4 md:block ${
+      className={`fixed inset-0 z-30 bg-white md:relative md:translate-x-0 md:w-1/4 md:block shadow-md transition-transform transform ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <button
-        className="md:hidden p-2 mb-4 bg-gray-700 rounded text-2xl"
-        onClick={toggleSidebar}
-      >
-        <IoIosCloseCircle />
-      </button>
+      <div className="p-4 h-full flex flex-col">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-xl font-bold text-gray-800">Nexa AI ChatBot</h1>
+          <button
+            className="md:hidden text-gray-600 hover:text-red-500 text-2xl"
+            onClick={toggleSidebar}
+          >
+            <IoIosCloseCircle />
+          </button>
+        </div>
 
-      <div className="text-2xl font-semibold mb-6">ChatBot</div>
-      <div className="mb-4">
         <button
           onClick={createChat}
-          className="w-full py-2 bg-gray-700 hover:bg-gray-600 rounded"
+          className="w-full mb-4 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center justify-center"
         >
-          {createLod ? <LoadingSpinner /> : "New Chat +"}
+          {createLod ? <LoadingSpinner /> : "➕ New Chat"}
         </button>
-      </div>
-      <div>
-        <p className="text-sm text-gray-400 mb-2">Recent</p>
 
-        <div className="max-h-[500px] overflow-y-auto mb-20 md:mb-0 thin-scrollbar">
+        <p className="text-sm text-gray-500 mb-2">Recent Chats</p>
+        <div className="flex-1 overflow-y-auto thin-scrollbar">
           {chats && chats.length > 0 ? (
-            chats.map((e) => (
-              <button
-                key={e._id}
-                className="w-full text-left py-2 px-2 bg-gray-700 hover:bg-gray-600 rounded mt-2 flex justify-between items-center"
-                onClick={() => clickEvent(e._id)}
+            chats.map((chat) => (
+              <div
+                key={chat._id}
+                className="bg-gray-100 hover:bg-gray-200 rounded-md px-3 py-2 mb-2 flex justify-between items-center cursor-pointer"
               >
-                <span>{e.latestMessage.slice(0, 38)}...</span>
-                <button
-                  className="bg-red-600 text-white text-xl px-3 py-2 rounded-md hover:bg-red-700"
-                  onClick={() => deleteChatHandler(e._id)}
+                <span
+                  className="truncate text-sm text-gray-800 w-[80%]"
+                  onClick={() => clickEvent(chat._id)}
                 >
-                  <MdDelete />
+                  {chat.latestMessage?.slice(0, 40) || "No message..."}...
+                </span>
+                <button
+                  className="text-red-500 hover:text-red-700"
+                  onClick={() => deleteChatHandler(chat._id)}
+                >
+                  <MdDelete size={18} />
                 </button>
-              </button>
+              </div>
             ))
           ) : (
-            <p>No chats yet</p>
+            <p className="text-gray-500 text-sm">No chats yet</p>
           )}
         </div>
-      </div>
 
-      <div className="absolute bottom-0 mb-6 w-full">
-        <button
-          className="bg-red-600 text-white text-xl px-3 py-2 rounded-md hover:bg-red-700"
-          onClick={logoutHandler}
-        >
-          Logout
-        </button>
+        <div className="mt-auto pt-4">
+          <button
+            onClick={logoutHandler}
+            className="w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium"
+          >
+            Logout
+          </button>
+        </div>
       </div>
     </div>
   );
