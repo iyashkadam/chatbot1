@@ -3,10 +3,12 @@ import { ChatData } from "../context/ChatContext";
 import { MdDelete } from "react-icons/md";
 import { LoadingSpinner } from "./Loading";
 import { UserData } from "../context/UserContext";
+import { useNavigate } from "react-router-dom"; // ✅ Added
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const { chats, createChat, createLod, setSelected, deleteChat } = ChatData();
   const { logoutHandler } = UserData();
+  const navigate = useNavigate(); // ✅ Added
 
   const deleteChatHandler = (id) => {
     if (confirm("Are you sure you want to delete this chat?")) {
@@ -72,7 +74,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
         <div className="mt-auto pt-4">
           <button
-            onClick={logoutHandler}
+            onClick={() => logoutHandler(navigate)} // ✅ Updated to use navigate
             className="w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium"
           >
             Logout

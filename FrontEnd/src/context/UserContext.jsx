@@ -29,27 +29,29 @@ export const UserProvider = ({ children }) => {
   async function verifyUser(otp, navigate, fetchChats) {
     const verifyToken = localStorage.getItem("verifyToken");
     setBtnLoading(true);
-
+  
     if (!verifyToken) return toast.error("Please give token");
     try {
       const { data } = await axios.post(`${server}/api/user/verify`, {
         otp,
         verifyToken,
       });
-
+  
       toast.success(data.message);
       localStorage.clear();
       localStorage.setItem("token", data.token);
-      navigate("/");
-      setBtnLoading(false);
-      setIsAuth(true);
+  
+      setIsAuth(true); // ✅ Set auth BEFORE navigate
       setUser(data.user);
       fetchChats();
+      navigate("/home"); // ✅ Now safe to redirect
+      setBtnLoading(false);
     } catch (error) {
       toast.error(error.response.data.message);
       setBtnLoading(false);
     }
   }
+  
   const [loading, setLoading] = useState(true);
 
   async function fetchUser() {
@@ -70,14 +72,18 @@ export const UserProvider = ({ children }) => {
     }
   }
 
-  const logoutHandler = (navigate) => {
-    localStorage.clear();
+ const logoutHandler = (navigate) => {
+  localStorage.clear();
 
-    toast.success("logged out");
-    setIsAuth(false);
-    setUser([]);
-    navigate("/login");
-  };
+  toast.success("Logged out");
+
+  // Set auth state before navigating
+  setIsAuth(false);
+  setUser([]);
+
+  navigate("/"); // 👈 Redirect to landing page
+};
+
 
   useEffect(() => {
     fetchUser();

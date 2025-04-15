@@ -7,15 +7,15 @@ import { CgProfile } from "react-icons/cg";
 import { FaRobot } from "react-icons/fa";
 import { LoadingBig, LoadingSmall } from "../components/Loading";
 import { IoMdSend } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [isOpen, setIsOpen] = useState(false);
-
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
 
-  const {
+  const { 
     fetchResponse,
     messages,
     prompt,
@@ -31,14 +31,10 @@ const Home = () => {
   };
 
   const messagecontainerRef = useRef();
+  const bottomRef = useRef(); // new scroll anchor
 
   useEffect(() => {
-    if (messagecontainerRef.current) {
-      messagecontainerRef.current.scrollTo({
-        top: messagecontainerRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   return (
@@ -54,7 +50,7 @@ const Home = () => {
         </button>
 
         <div
-          className="flex-1 p-4 md:p-6 mb-20 md:mb-0 overflow-y-auto thin-scrollbar bg-[#1E293B]"
+          className="flex-1 p-4 md:p-6 overflow-y-auto thin-scrollbar bg-[#1E293B] pb-40"
           ref={messagecontainerRef}
         >
           <Header />
@@ -62,7 +58,7 @@ const Home = () => {
           {loading ? (
             <LoadingBig />
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 mb-20">
               {messages && messages.length > 0 ? (
                 messages.map((e, i) => (
                   <div key={i}>
@@ -78,26 +74,27 @@ const Home = () => {
                         <FaRobot />
                       </div>
                       <p
-                        className="text-sm break-words"
+                        className="text-sm break-words leading-relaxed space-y-2 prose prose-invert max-w-none"
                         dangerouslySetInnerHTML={{ __html: e.answer }}
                       ></p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-white-400">No chat yet</p>
+                <p className="text-gray-400">No chat yet</p>
               )}
 
               {newRequestLoading && <LoadingSmall />}
+
+              {/* Scroll anchor so last message isn't hidden behind input bar */}
+              <div ref={bottomRef} />
             </div>
           )}
         </div>
       </div>
 
-      {chats && chats.length === 0 ? (
-        ""
-      ) : (
-        <div className="fixed bottom-0 right-0 left-auto p-4 bg-[#1E293B] w-full md:w-[75%] border-t border-gray-700">
+      {chats && chats.length === 0 ? null : (
+        <div className="fixed bottom-0 z-10 right-0 left-0 md:left-[25%] p-4 bg-[#1E293B] w-full md:w-[75%] border-t border-gray-700">
           <form
             onSubmit={submitHandler}
             className="flex justify-center items-center"
