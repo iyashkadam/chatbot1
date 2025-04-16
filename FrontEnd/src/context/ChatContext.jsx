@@ -46,7 +46,7 @@ export const ChatProvider = ({ children }) => {
         }
       );
     } catch (error) {
-      alert("someting went wrong");
+      alert("something went wrong");
       console.log(error);
       setNewRequestLoading(false);
     }
