@@ -19,6 +19,10 @@ import chatRoutes from "./routes/chatRoutes.js";
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 
+app.get("/", (req, res) => {
+  res.send("Backend is running successfully! 🚀");
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`server is working on port ${process.env.PORT}`);
   connectDb();
