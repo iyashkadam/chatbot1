@@ -10,6 +10,11 @@ export const ChatProvider = ({ children }) => {
   const [prompt, setPrompt] = useState("");
   const [newRequestLoading, setNewRequestLoading] = useState(false);
 
+  const [chats, setChats] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [createLod, setCreateLod] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   async function fetchResponse() {
     if (prompt === "") return alert("Write prompt");
     setNewRequestLoading(true);
@@ -25,20 +30,15 @@ export const ChatProvider = ({ children }) => {
 
       const message = {
         question: prompt,
-        answer:
-          response["data"]["candidates"][0]["content"]["parts"][0]["text"],
+        answer: response.data.candidates[0].content.parts[0].text,
       };
 
       setMessages((prev) => [...prev, message]);
       setNewRequestLoading(false);
 
-      const { data } = await axios.post(
+      await axios.post(
         `${server}/api/chat/${selected}`,
-        {
-          question: prompt,
-          answer:
-            response["data"]["candidates"][0]["content"]["parts"][0]["text"],
-        },
+        message,
         {
           headers: {
             token: localStorage.getItem("token"),
@@ -52,10 +52,6 @@ export const ChatProvider = ({ children }) => {
     }
   }
 
-  const [chats, setChats] = useState([]);
-
-  const [selected, setSelected] = useState(null);
-
   async function fetchChats() {
     try {
       const { data } = await axios.get(`${server}/api/chat/all`, {
@@ -63,15 +59,12 @@ export const ChatProvider = ({ children }) => {
           token: localStorage.getItem("token"),
         },
       });
-
       setChats(data);
-      setSelected(data[0]._id);
+      setSelected(data[0]?._id || null);
     } catch (error) {
       console.log(error);
     }
   }
-
-  const [createLod, setCreateLod] = useState(false);
 
   async function createChat() {
     setCreateLod(true);
@@ -85,18 +78,16 @@ export const ChatProvider = ({ children }) => {
           },
         }
       );
-
       fetchChats();
       setCreateLod(false);
     } catch (error) {
-      toast.error("some went wrong");
+      toast.error("something went wrong");
       setCreateLod(false);
     }
   }
 
-  const [loading, setLoading] = useState(false);
-
   async function fetchMessages() {
+    if (!selected) return;
     setLoading(true);
     try {
       const { data } = await axios.get(`${server}/api/chat/${selected}`, {
@@ -119,9 +110,17 @@ export const ChatProvider = ({ children }) => {
           token: localStorage.getItem("token"),
         },
       });
+
       toast.success(data.message);
-      fetchChats();
-      window.location.reload();
+
+      // Remove the deleted chat from chats list
+      setChats((prevChats) => prevChats.filter((chat) => chat._id !== id));
+
+      // If the deleted chat was selected, deselect
+      if (selected === id) {
+        setSelected(null);
+        setMessages([]); // clear messages also
+      }
     } catch (error) {
       console.log(error);
       alert("something went wrong");
@@ -135,6 +134,7 @@ export const ChatProvider = ({ children }) => {
   useEffect(() => {
     fetchMessages();
   }, [selected]);
+
   return (
     <ChatContext.Provider
       value={{
